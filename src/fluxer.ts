@@ -19,11 +19,14 @@ export function createFluxer(bridge: Bridge): Client {
       sourceMessageId: message.id,
       sourceChannelId: message.channelId,
       authorId: message.author.id,
-      authorName: message.author.displayName ?? message.author.username,
+      authorName: message.author.username,
       authorIsBot: Boolean(message.author.bot),
       content: message.content ?? "",
-      timestamp: new Date(message.timestamp).toISOString(),
-      attachments: message.attachments?.map((a: { url: string }) => a.url) ?? [],
+      timestamp: message.createdAt.toISOString(),
+      attachments:
+        message.attachments?.flatMap((attachment) =>
+          attachment.url ? [attachment.url] : [],
+        ) ?? [],
     };
 
     try {
@@ -44,7 +47,13 @@ export async function sendToFluxer(message: NormalizedMessage, client: Client): 
 
   const header = `**${message.authorName}** · Discord`;
   const content = [header, message.content.trim(), ...message.attachments].filter(Boolean).join("\n");
-  await channel.send({
+
+  const send = channel.send;
+  if (typeof send !== "function") {
+    throw new Error("Configured Fluxer channel does not expose send()");
+  }
+
+  await send.call(channel, {
     content: content.slice(0, 2000),
     allowedMentions: { parse: [] },
   });
