@@ -15,6 +15,7 @@ export class Bridge {
     if (message.authorIsBot) return;
 
     const target = message.source === "discord" ? "fluxer" : "discord";
+    console.log(`[bridge] ${message.source} -> ${target}: ${message.sourceMessageId}`);
     const sink = this.sinks.get(target);
     if (!sink) throw new Error(`No sink registered for ${target}`);
 
