@@ -8,10 +8,15 @@ export function createFluxer(bridge: Bridge): Client {
 
   client.on(Events.Ready, () => {
     console.log("[fluxer] ready");
+    console.log(`[fluxer] configured channel: ${config.fluxerChannelId}`);
   });
 
   client.on(Events.MessageCreate, async (message) => {
-    if (message.channelId !== config.fluxerChannelId) return;
+    console.log(`[fluxer] received message ${message.id} in channel ${message.channelId}`);
+    if (message.channelId !== config.fluxerChannelId) {
+      console.log(`[fluxer] ignored message ${message.id}: channel does not match configured channel`);
+      return;
+    }
     if (message.author?.bot) return;
 
     const normalized: NormalizedMessage = {
