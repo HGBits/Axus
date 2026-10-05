@@ -18,10 +18,15 @@ export function createDiscord(bridge: Bridge): Client {
 
   client.once("ready", () => {
     console.log(`[discord] ready as ${client.user?.tag}`);
+    console.log(`[discord] configured channel: ${config.discordChannelId}`);
   });
 
   client.on("messageCreate", async (message) => {
-    if (message.channelId !== config.discordChannelId) return;
+    console.log(`[discord] received message ${message.id} in channel ${message.channelId}`);
+    if (message.channelId !== config.discordChannelId) {
+      console.log(`[discord] ignored message ${message.id}: channel does not match configured channel`);
+      return;
+    }
     if (message.author.id === client.user?.id) return;
 
     const normalized = normalizeDiscord(message);
