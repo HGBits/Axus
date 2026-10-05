@@ -23,10 +23,11 @@ export function createFluxer(bridge: Bridge): Client {
       authorIsBot: Boolean(message.author.bot),
       content: message.content ?? "",
       timestamp: message.createdAt.toISOString(),
-      attachments:
-        message.attachments?.flatMap((attachment) =>
-          attachment.url ? [attachment.url] : [],
-        ) ?? [],
+      attachments: message.attachments
+        ? message.attachments
+            .map((attachment) => attachment.url)
+            .filter((url): url is string => Boolean(url))
+        : [],
     };
 
     try {
